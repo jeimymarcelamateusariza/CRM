@@ -6,16 +6,7 @@
         conectarDB();
         formulario.addEventListener('submit', validarCliente);
     });
-    function conectarDB(){
-        const abrirConexion = window.indexedDB.open('crm', 1);
-
-        abrirConexion.onerror = function (){
-            console.log('Error')
-        }
-        abrirConexion.onsuccess = function (){
-            DB = abrirConexion.result;
-        }
-    }
+    
     function validarCliente(e) {
         e.preventDefault();
         //Leer todos los inputs
@@ -28,24 +19,36 @@
             imprimirAlerta('Todos los campos son obligatorios', 'error');
             return;
         }
-    }
-    function imprimirAlerta (mensaje, tipo){
+        //Crear un objeto con la info
+        const cliente = {
+            nombre,
+            email,
+            telefono,
+            empresa,
+        }
+        cliente.id = Date.now();
         
-        const alerta = document.querySelector('.alerta');
+        crearNuevoCliente(cliente);
+    }
+    function crearNuevoCliente(cliente) {
+        const transaction = DB.transaction(['crm'], 'readwrite');
 
-        if (!alerta){
-            const divMensaje = document.createElement('DIV');
-            divMensaje.classList.add('px-4', 'py-3', 'rounded', 'max-w-lg', 'mx-auto', 'text-center', 'mt-6', 'alerta');
-            if(tipo === 'error'){
-                divMensaje.classList.add('bg-red-100', 'text-red-700');
-            } else {
-                divMensaje.classList.add('bg-green-100')
-            }
-            divMensaje.textContent = mensaje;
-            formulario.appendChild(divMensaje);
+        const objectStore = transaction.objectStore('crm');
+
+        objectStore.add(cliente);
+    
+        transaction.onerror = function (){
+            imprimirAlerta('Error', 'error')
+        }
+        transaction.oncomplete = function (){
+            console.log('Cliente agregado');
+            imprimirAlerta('El cliente se agrego correctamente');
+
             setTimeout(() => {
-                divMensaje.remove();
+                window.location.href = 'index.html'
             }, 3000);
         }
     }
+    
+    
 })();
