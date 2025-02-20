@@ -1,5 +1,5 @@
+let DB;
 (function(){
-    let DB;
     let idCliente;
     const nombreInput = document.querySelector('#nombre');
     const emailInput = document.querySelector('#email');
